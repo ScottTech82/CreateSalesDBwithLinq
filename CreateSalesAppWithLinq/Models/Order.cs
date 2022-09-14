@@ -29,7 +29,9 @@ namespace CreateSalesAppWithLinq.Models
         public int CustomerId { get; set; } //FK to Customer
         public virtual Customer Customer { get; set; }
 
-
-
+        public override string ToString()
+        {
+            return $"Order Id:  {Id} | Desc: {Description} | Total: {Total} | Status: {Status} | Date: {Date}";
+        }
     }
 }

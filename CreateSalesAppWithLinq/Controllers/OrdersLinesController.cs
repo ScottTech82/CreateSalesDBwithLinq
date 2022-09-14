@@ -11,8 +11,10 @@ namespace CreateSalesAppWithLinq.Controllers
     public class OrdersLinesController
     {
 
-        public readonly AppDbContext _context = null!;
-        public OrdersLinesController(AppDbContext context) { _context = context; }
+        private readonly AppDbContext _context = null!;
+        private OrdersController ordCtrl;
+
+        public OrdersLinesController(AppDbContext context) { _context = context; ordCtrl = new(_context); }
 
         public async Task<IEnumerable<OrderLine>> GetAll()
         {
@@ -33,6 +35,7 @@ namespace CreateSalesAppWithLinq.Controllers
             }
             _context.Entry(orderLine).State = EntityState.Modified;
             await _context.SaveChangesAsync();
+            await CalcOrderTotal(orderLine.OrderId);
         }
 
         public async Task<OrderLine?> Insert(OrderLine orderline)
@@ -40,18 +43,43 @@ namespace CreateSalesAppWithLinq.Controllers
            
             _context.OrdersLines.Add(orderline);
             await _context.SaveChangesAsync();
+            await CalcOrderTotal(orderline.OrderId);
+
             return orderline;
         }
 
-        public async Task Delete(int Id, OrderLine orderline)
+        public async Task Delete(int Id)
         {
-            OrderLine? orderLine = await GetByPK(orderline.Id);
+            var orderLine = await GetByPK(Id);
             if(orderLine == null)
             {
                 throw new Exception("OrderLine is not found");
             }
             _context.OrdersLines.Remove(orderLine);
             await _context.SaveChangesAsync();
+            await CalcOrderTotal(orderLine.OrderId);
         }
+
+
+
+        //take quantity & unit price of a product and calculate as the order Total.
+        //then placed the method after save changes in other methods insert, update, delete.
+        private async Task CalcOrderTotal(int orderId)
+        {
+            
+            var orderx = await ordCtrl.GetByPK(orderId);
+            if(orderx is null)
+            {
+                throw new Exception("Order not found");
+            }
+
+            orderx.Total = (from ol in _context.OrdersLines
+                            join p in _context.Products on ol.ProductId equals p.Id
+                            where ol.OrderId == orderId
+                            select new { LineTotal = ol.Quantity * p.Price }).Sum(o => o.LineTotal);
+
+            await ordCtrl.Update(orderId, orderx);
+        }
+
     }
 }

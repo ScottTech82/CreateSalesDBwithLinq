@@ -11,7 +11,7 @@ namespace CreateSalesAppWithLinq.Controllers
     public class CustomersController
     {
 
-        public readonly AppDbContext _context = null!;
+        private readonly AppDbContext _context = null!;
 
         public CustomersController(AppDbContext context)
         {
@@ -27,6 +27,10 @@ namespace CreateSalesAppWithLinq.Controllers
         {
             return await _context.Customers.FindAsync(Id);
         }
+
+
+
+
 
         public async Task Update(int Id, Customer customer)
         {
@@ -62,6 +66,9 @@ namespace CreateSalesAppWithLinq.Controllers
             _context.Customers.Remove(customer);
             await _context.SaveChangesAsync();   
         }
+
+
+
 
     }
 }

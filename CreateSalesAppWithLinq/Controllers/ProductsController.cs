@@ -10,7 +10,7 @@ namespace CreateSalesAppWithLinq.Controllers
 {
     public class ProductsController
     {
-        public readonly AppDbContext _context = null!;
+        private readonly AppDbContext _context = null!;
         public ProductsController(AppDbContext context) { _context = context; }
 
         public async Task<IEnumerable<Product>> GetAll()

@@ -20,5 +20,7 @@ namespace CreateSalesAppWithLinq.Models
 
         public int Quantity { get; set; } = 1;
 
+        
+
     }
 }
